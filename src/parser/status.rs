@@ -24,6 +24,6 @@ fn idle(input: &str) -> IResult<&str, Command> {
             tag("idle"),
             many0(string_arg),
         ),
-        |systems: Vec<String>| Command::Idle(systems),
+        Command::Idle,
     )(input)
 }

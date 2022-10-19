@@ -28,7 +28,7 @@ fn set_volume(input: &str) -> IResult<&str, Command> {
             tag("setvol"),
             preceded(multispace0, u32_arg),
         ),
-        |volume| Command::SetVolume(volume),
+        Command::SetVolume,
     )(input)
 }
 
@@ -38,7 +38,7 @@ fn change_volume(input: &str) -> IResult<&str, Command> {
             tag("volume"),
             preceded(multispace0, i32_arg),
         ),
-        |volume| Command::ChangeVolumeBy(volume),
+        Command::ChangeVolumeBy,
     )(input)
 }
 
@@ -48,7 +48,7 @@ fn random(input: &str) -> IResult<&str, Command> {
             tag("random"),
             preceded(multispace0, bool_arg),
         ),
-        |random| Command::Random(random),
+        Command::Random,
     )(input)
 }
 
@@ -58,7 +58,7 @@ fn repeat(input: &str) -> IResult<&str, Command> {
             tag("repeat"),
             preceded(multispace0, bool_arg),
         ),
-        |repeat| Command::Repeat(repeat),
+        Command::Repeat,
     )(input)
 }
 
@@ -73,7 +73,7 @@ fn replay_gain_mode(input: &str) -> IResult<&str, Command> {
                 enum_variant("auto", ReplayGainMode::Auto),
             ))),
         ),
-        |mode| Command::ReplayGainMode(mode),
+        Command::ReplayGainMode,
     )(input)
 }
 

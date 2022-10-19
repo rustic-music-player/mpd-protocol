@@ -22,7 +22,7 @@ pub fn u32_arg(input: &str) -> IResult<&str, u32> {
             digit1,
             delimited(char('"'), digit1, char('"')),
         )),
-        | digits: &str | u32::from_str_radix(digits, 10).ok()
+        | digits: &str | digits.parse().ok()
     )(input)
 }
 
@@ -34,7 +34,7 @@ pub fn i32_arg(input: &str) -> IResult<&str, i32> {
             recognize(pair(char('-'), digit1)),
             delimited(char('"'), recognize(pair(char('-'), digit1)), char('"')),
         )),
-        |digits: &str| i32::from_str_radix(digits, 10).ok(),
+        |digits: &str| digits.parse().ok(),
     )(input)
 }
 

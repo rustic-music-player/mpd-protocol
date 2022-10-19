@@ -49,7 +49,7 @@ fn command_list(input: &str) -> IResult<&str, Request> {
 }
 
 fn command(input: &str) -> IResult<&str, Request> {
-    map(terminated(parse_command, char('\n')), |cmd| Request::Command(cmd))(input)
+    map(terminated(parse_command, char('\n')), Request::Command)(input)
 }
 
 pub fn parse_command(input: &str) -> IResult<&str, Command> {

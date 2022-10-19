@@ -23,7 +23,7 @@ fn playlist_changes(input: &str) -> IResult<&str, Command> {
             tag("plchanges"),
             string_arg,
         ),
-        |version| Command::PlaylistChanges(version),
+        Command::PlaylistChanges,
     )(input)
 }
 
@@ -33,6 +33,6 @@ fn add_id(input: &str) -> IResult<&str, Command> {
             tag("addid"),
             string_arg,
         ),
-        |uri| Command::AddId(uri),
+        Command::AddId,
     )(input)
 }

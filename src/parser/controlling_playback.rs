@@ -26,7 +26,7 @@ fn pause(input: &str) -> IResult<&str, Command> {
             tag("pause"),
             opt(preceded(multispace0, bool_arg)),
         ),
-        |paused| Command::Pause(paused),
+        Command::Pause,
     )(input)
 }
 
@@ -36,7 +36,7 @@ fn play(input: &str) -> IResult<&str, Command> {
             tag("play"),
             opt(preceded(multispace0, u32_arg)),
         ),
-        |song_pos| Command::Play(song_pos),
+        Command::Play,
     )(input)
 }
 
@@ -46,6 +46,6 @@ fn play_id(input: &str) -> IResult<&str, Command> {
             tag("playid"),
             opt(preceded(multispace0, u32_arg)),
         ),
-        |song_id| Command::PlayId(song_id),
+        Command::PlayId,
     )(input)
 }

@@ -27,7 +27,7 @@ fn lsinfo(input: &str) -> IResult<&str, Command> {
             tag("lsinfo"),
             opt(string_arg),
         ),
-        |uri| Command::ListInfo(uri),
+        Command::ListInfo,
     )(input)
 }
 
@@ -37,7 +37,7 @@ fn load(input: &str) -> IResult<&str, Command> {
             tag("load"),
             string_arg,
         ),
-        |version| Command::LoadPlaylist(version),
+        Command::LoadPlaylist,
     )(input)
 }
 
@@ -47,7 +47,7 @@ fn list(input: &str) -> IResult<&str, Command> {
             tag("list"),
             string_arg,
         ),
-        |r#type| Command::List(r#type),
+        Command::List,
     )(input)
 }
 
@@ -57,7 +57,7 @@ fn find(input: &str) -> IResult<&str, Command> {
             tag("find"),
             string_arg,
         ),
-        |filter| Command::Find(filter),
+        Command::Find,
     )(input)
 }
 
@@ -67,7 +67,7 @@ fn list_playlist_info(input: &str) -> IResult<&str, Command> {
             tag("listplaylistinfo"),
             string_arg,
         ),
-        |playlist| Command::ListPlaylistInfo(playlist),
+        Command::ListPlaylistInfo,
     )(input)
 }
 
