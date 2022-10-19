@@ -1,8 +1,9 @@
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::map;
+use nom::character::complete::multispace0;
+use nom::combinator::{map, opt};
 use nom::IResult;
-use nom::sequence::preceded;
+use nom::sequence::{pair, preceded};
 
 use crate::requests::Command;
 
@@ -16,6 +17,7 @@ pub fn parse_music_database(input: &str) -> IResult<&str, Command> {
         list,
         find,
         list_playlist_info,
+        albumart,
     ))(input)
 }
 
@@ -23,9 +25,9 @@ fn lsinfo(input: &str) -> IResult<&str, Command> {
     map(
         preceded(
             tag("lsinfo"),
-            string_arg,
+            opt(string_arg),
         ),
-        |version| Command::ListInfo(version),
+        |uri| Command::ListInfo(uri),
     )(input)
 }
 
@@ -66,5 +68,15 @@ fn list_playlist_info(input: &str) -> IResult<&str, Command> {
             string_arg,
         ),
         |playlist| Command::ListPlaylistInfo(playlist),
+    )(input)
+}
+
+fn albumart(input: &str) -> IResult<&str, Command> {
+    map(
+        preceded(
+            tag("albumart"),
+            pair(string_arg, preceded(multispace0, u32_arg)),
+        ),
+        |(uri, offset)| Command::AlbumArt(uri, offset),
     )(input)
 }

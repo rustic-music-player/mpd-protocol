@@ -5,6 +5,8 @@ use nom::combinator::{map};
 use nom::IResult;
 use nom::multi::{ separated_list0};
 use nom::sequence::{delimited,  terminated};
+use crate::parser::partition::parse_partitions;
+use crate::parser::reflection::parse_reflection;
 use crate::requests::{Command, Request};
 pub(crate) use self::args::*;
 use self::status::parse_mpd_status;
@@ -19,6 +21,8 @@ mod playback_options;
 mod controlling_playback;
 mod queue;
 mod music_database;
+mod partition;
+mod reflection;
 
 pub fn parse(input: &str) -> IResult<&str, Request> {
     alt((
@@ -55,11 +59,11 @@ pub fn parse_command(input: &str) -> IResult<&str, Command> {
         parse_playback_options,
         parse_queue,
         parse_controlling_playback,
+        parse_partitions,
+        parse_reflection,
         basic_command("noidle", Command::NoIdle),
         basic_command("close", Command::Close),
-        basic_command("commands", Command::Commands),
         basic_command("tagtypes", Command::TagTypes),
-        basic_command("decoders", Command::Decoders),
         basic_command("outputs", Command::Outputs),
     ))(input)
 }

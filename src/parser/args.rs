@@ -1,7 +1,7 @@
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{alphanumeric1, char, digit1, one_of};
-use nom::combinator::{map, map_opt, recognize, eof, peek};
+use nom::combinator::{eof, map, map_opt, peek, recognize};
 use nom::IResult;
 use nom::sequence::{delimited, pair};
 
@@ -12,14 +12,17 @@ pub fn bool_arg(input: &str) -> IResult<&str, bool> {
             '0' => false,
             '1' => true,
             _ => unreachable!()
-        }
+        },
     )(input)
 }
 
 pub fn u32_arg(input: &str) -> IResult<&str, u32> {
     map_opt(
-        digit1,
-        |digits: &str| u32::from_str_radix(digits, 10).ok()
+        alt((
+            digit1,
+            delimited(char('"'), digit1, char('"')),
+        )),
+        | digits: &str | u32::from_str_radix(digits, 10).ok()
     )(input)
 }
 
@@ -27,9 +30,11 @@ pub fn i32_arg(input: &str) -> IResult<&str, i32> {
     map_opt(
         alt((
             digit1,
-            recognize(pair(char('-'), digit1))
+            delimited(char('"'), digit1, char('"')),
+            recognize(pair(char('-'), digit1)),
+            delimited(char('"'), recognize(pair(char('-'), digit1)), char('"')),
         )),
-        |digits: &str| i32::from_str_radix(digits, 10).ok()
+        |digits: &str| i32::from_str_radix(digits, 10).ok(),
     )(input)
 }
 
@@ -43,13 +48,14 @@ pub fn string_arg(input: &str) -> IResult<&str, String> {
                 peek(tag("\n")),
             )))
         )),
-        |string: &str| string.to_string()
+        |string: &str| string.to_string(),
     )(input)
 }
 
 #[cfg(test)]
 mod tests {
     use test_case::test_case;
+
     use crate::string_arg;
 
     #[test_case(" \"artist\"", "artist"; "artist quoted")]

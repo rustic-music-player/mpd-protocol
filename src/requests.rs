@@ -27,7 +27,16 @@ pub enum Command {
      * Displays a list of all songs in the playlist, or if the optional argument is given, displays information only for the song SONGPOS or the range of songs START:END
      */
     PlaylistInfo,
-    ListInfo(String),
+    /**
+     * Lists the contents of the directory URI. The response contains records starting with file, directory or playlist, each followed by metadata (tags or other metadata).
+     *
+     * When listing the root directory, this currently returns the list of stored playlists. This behavior is deprecated; use “listplaylists” instead.
+     *
+     * This command may be used to list metadata of remote files (e.g. URI beginning with “http://” or “smb://”).
+     *
+     * Clients that are connected via local socket may use this command to read the tags of an arbitrary local file (URI is an absolute path).
+     */
+    ListInfo(Option<String>),
     Previous,
     Next,
     Pause(Option<bool>),
@@ -52,6 +61,25 @@ pub enum Command {
      * Clears the queue.
      */
     Clear,
+    /**
+     * Locate album art for the given song and return a chunk of an album art image file at offset OFFSET.
+     *
+     * This is currently implemented by searching the directory the file resides in for a file called cover.png, cover.jpg, cover.tiff or cover.bmp.
+     *
+     * Returns the file size and actual number of bytes read at the requested offset, followed by the chunk requested as raw bytes (see Binary Responses), then a newline and the completion code.
+     *
+     * ## Example
+     * ```mpd
+     * albumart foo/bar.ogg 0
+     * size: 1024768
+     * binary: 8192
+     * <8192 bytes>
+     * OK
+     * ```
+     */
+    AlbumArt(String, u32),
+    ReplayGainMode(ReplayGainMode),
+    ReplayGainStatus,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -59,4 +87,12 @@ pub enum ConsumeState {
     True,
     False,
     Oneshot
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ReplayGainMode {
+    Off,
+    Track,
+    Album,
+    Auto,
 }

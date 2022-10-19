@@ -1,5 +1,5 @@
 use test_case::test_case;
-use mpd_protocol::{Command, Request, parse};
+use mpd_protocol::{Command, Request, parse, ReplayGainMode};
 
 #[test_case("idle\n", Default::default())]
 #[test_case("idle \"database\"\n", vec!["database"])]
@@ -93,8 +93,10 @@ fn set_volume_command(input: &str, volume: u32) {
 }
 
 #[test_case("volume 0\n", 0)]
-#[test_case("volume 100\n", 100)]
-#[test_case("volume -5\n", -5)]
+#[test_case("volume 100\n", 100; "positive volume")]
+#[test_case("volume \"100\"\n", 100; "positive volume with quotes")]
+#[test_case("volume -5\n", -5; "negative volume")]
+#[test_case("volume \"-5\"\n", -5; "negative volume with quotes")]
 fn change_volume_command(input: &str, volume: i32) {
     let expected = Command::ChangeVolumeBy(volume);
 
@@ -256,10 +258,11 @@ fn playlist_changes_command(input: &str, version: &str) {
     assert_eq!(Ok(("", Request::Command(expected))), result)
 }
 
-#[test_case("lsinfo \"\"\n", "")]
-#[test_case("lsinfo \"some path\"\n", "some path")]
-fn list_info_command(input: &str, uri: &str) {
-    let expected = Command::ListInfo(uri.to_string());
+#[test_case("lsinfo\n", None)]
+#[test_case("lsinfo \"\"\n", Some(""))]
+#[test_case("lsinfo \"some path\"\n", Some("some path"))]
+fn list_info_command(input: &str, uri: Option<&str>) {
+    let expected = Command::ListInfo(uri.map(|uri| uri.to_string()));
 
     let result = parse(input);
 
@@ -316,6 +319,59 @@ fn add_id_command(input: &str, uri: &str) {
     let expected = Command::AddId(uri.to_string());
 
     let result = parse(input);
+
+    assert_eq!(Ok(("", Request::Command(expected))), result)
+}
+
+#[test_case("albumart \"uri\" \"0\"\n", "uri", 0)]
+#[test_case("albumart \"file\" 50\n", "file", 50)]
+fn albumart_command(input: &str, uri: &str, offset: u32) {
+    let expected = Command::AlbumArt(uri.to_string(), offset);
+
+    let result = parse(input);
+
+    assert_eq!(Ok(("", Request::Command(expected))), result)
+}
+
+#[test]
+fn list_partitions_command() {
+    let input = "listpartitions\n";
+    let expected = Command::ListPartitions;
+
+    let result = parse(input);
+
+    assert_eq!(Ok(("", Request::Command(expected))), result)
+}
+
+#[test]
+fn url_handlers_command() {
+    let input = "urlhandlers\n";
+    let expected = Command::UrlHandlers;
+
+    let result = parse(input);
+
+    assert_eq!(Ok(("", Request::Command(expected))), result)
+}
+
+#[test]
+fn replay_gain_status_command() {
+    let input = "replay_gain_status\n";
+    let expected = Command::ReplayGainStatus;
+
+    let result = parse(input);
+
+    assert_eq!(Ok(("", Request::Command(expected))), result)
+}
+
+#[test_case("off", ReplayGainMode::Off)]
+#[test_case("track", ReplayGainMode::Track)]
+#[test_case("album", ReplayGainMode::Album)]
+#[test_case("auto", ReplayGainMode::Auto)]
+fn replay_gain_mode_command(mode: &str, expected: ReplayGainMode) {
+    let input = format!("replay_gain_mode {mode}\n");
+    let expected = Command::ReplayGainMode(expected);
+
+    let result = parse(&input);
 
     assert_eq!(Ok(("", Request::Command(expected))), result)
 }
